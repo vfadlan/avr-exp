@@ -6,6 +6,7 @@
 
 void dot(uint8_t n);
 void dash(uint8_t n);
+void sep();
 void send_char(char c);
 void send(char s[]);
 
@@ -14,11 +15,7 @@ int main() {
   DDRD |= 1 << PD5;
 
   while (1) {
-    PORTD |= 1 << PD5;
-    _delay_ms(3000);
-    PORTD &= ~(1 << PD5);
-    _delay_ms(1500);
-   
+    sep(); sep(); sep();
     send("HELLO WORLD");
     _delay_ms(3000);
   }
@@ -70,6 +67,14 @@ void send_char(char c) {
     case '8': dash(3); dot(2); break;
     case '9': dash(4); dot(1); break;
   }
+  sep();
+}
+
+void sep() {
+    PORTD |= 1 << PD5;
+    _delay_ms(3000);
+    PORTD &= ~(1 << PD5);
+    _delay_ms(1500);
 }
 
 void dot(uint8_t n) {
