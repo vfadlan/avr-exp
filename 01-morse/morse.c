@@ -1,8 +1,7 @@
 #include <avr/io.h>
-#include <util/delay.h>
 #include <ctype.h>
-
-#define F_CPU 16000000UL
+#define F_CPU 2000000L
+#include <util/delay.h>
 
 void dot(uint8_t n);
 void dash(uint8_t n);
@@ -17,7 +16,7 @@ int main() {
   while (1) {
     sep(); sep(); sep();
     send("SELAMAT PAGI SIANG SORE DAN MALAM");
-    _delay_ms(3000);
+    _delay_ms(1000);
   }
 }
 
@@ -72,27 +71,25 @@ void send_char(char c) {
 
 void sep() {
     PORTD |= 1 << PD5;
-    _delay_ms(1500);
+    _delay_ms(50);
     PORTD &= ~(1 << PD5);
-    _delay_ms(1500);
+    _delay_ms(50);
 }
 
 void dot(uint8_t n) {
   for (; n > 0; n--) {
     PORTB |= 1 << PB5;
-    _delay_ms(1250);
+    _delay_ms(150);
     PORTB &= ~(1 << PB5);
-    _delay_ms(1500);
+    _delay_ms(150);
   }
-  _delay_ms(1500);
 }
 
 void dash(uint8_t n) {
   for (; n > 0; n--) {
     PORTB |= 1 << PB5;
-    _delay_ms(3000);
+    _delay_ms(350);
     PORTB &= ~(1 << PB5);
-    _delay_ms(1500);
+    _delay_ms(150);
   }
-  _delay_ms(1500);
 }
