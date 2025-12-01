@@ -1,6 +1,6 @@
 #include <avr/io.h>
 #include <ctype.h>
-#define F_CPU 750000L
+#define F_CPU 1000000L
 #include <util/delay.h>
 
 void dot(uint8_t n);
@@ -12,11 +12,14 @@ void send(char s[]);
 int main() {
   DDRB |= 1 << PB5;
   DDRD |= 1 << PD5;
+  PORTD |= 1 << PD6;
 
   while (1) {
-    sep(); sep(); sep();
-    send("SELAMAT PAGI SIANG SORE DAN MALAM");
-    _delay_ms(1000);
+    if ((~(PIND >> PD6)) & 1) {
+      sep(); sep(); sep();
+      send("SELAMAT PAGI SIANG SORE DAN MALAM");
+      _delay_ms(1000);
+    }
   }
 }
 
