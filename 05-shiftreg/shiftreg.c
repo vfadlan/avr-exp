@@ -6,11 +6,13 @@
 #define R_CLK PD1
 #define SR_CLK PD2
 
-void write(uint8_t data);
-void shiftBit(bool bit);
+void sr_write(uint8_t data);
+void shift_bit(bool bit);
 void tick(void);
 void latch(void);
 void clear(void);
+
+#include <anim.h>
 
 int main(void) {
   DDRD |= (1 << SER) | (1 << R_CLK) | (1 << SR_CLK);
@@ -28,23 +30,23 @@ int main(void) {
 
 void sr_write(uint8_t data) {
   for (int i=0; i<8; i++) {
-    shiftBit(data & 0x80);
+    shift_bit(data & 0x80);
     data <<= 1;
   }
   latch();
 }
 
-void shiftBit(bool bit) {
-    if (bit)    PORTD |= (1 << SER);
-    else        PORTD &= (~(1 << SER));
+void shift_bit(bool bit) {
+  if (bit)    PORTD |= (1 << SER);
+  else        PORTD &= (~(1 << SER));
 
-    tick();
+  tick();
 }
 
 void tick(void) {
-    PORTD |= (1 << SR_CLK);
-    _delay_ms(50);
-    PORTD &= (~(1 << SR_CLK));
+  PORTD |= (1 << SR_CLK);
+  _delay_ms(50);
+  PORTD &= (~(1 << SR_CLK));
 }
 
 void latch(void) {
@@ -54,5 +56,5 @@ void latch(void) {
 }
 
 void clear(void) {
-    sr_write(0x00);
+  sr_write(0x00);
 }
