@@ -17,17 +17,17 @@ bool draw_pattern(uint8_t pattern, int delay_ms) {
 
 void binary_counter() {
   for (int i=0; i<256; i++) {
-    if (!draw_pattern(i, 150)) return;
+    if (!draw_pattern(i, 30)) return;
   }
 }
 
 void stack_to_end() {
   uint8_t pattern = 0;
   uint8_t carry = 0;
-  for (int i=7; i>=0; i--) {
+  for (int i=8; i>=0; i--) {
     for (int j=0; j<i; j++) {
       pattern = (1 << j);
-      if (!draw_pattern((pattern | carry), 150)) return;
+      if (!draw_pattern((pattern | carry), 30)) return;
     }
     carry |= pattern;
   }
@@ -35,31 +35,29 @@ void stack_to_end() {
 
 void bounce_left_right() {
   for (int i=0; i<8; i++) {
-    if (!draw_pattern((1 << i), 100)) return;
+    if (!draw_pattern((1 << i), 80)) return;
   }
   for (int i=7; i>=0; i--) { 
-    if (!draw_pattern((1<<i), 100)) return;
+    if (!draw_pattern((1<<i), 80)) return;
   }
 }
 
 void left_sign(int len) {
-  for (int i=0; i<8+len; i++) {
+  for (int i=0; i<8; i++) {
     if (i<len) {
       shift_bit(1);
     } else {
       shift_bit(0);
     }
-    if (!latch()) {
-      return;
-    }
-    _delay_ms(300);
+    if (!latch()) return;
+    _delay_ms(150);
   }
 }
 
 void loading_bar() {
   uint8_t pattern = 0;
   for (int i=0; i<=8; i++) {
-    if (!draw_pattern(pattern, 200)) return;
+    if (!draw_pattern(pattern, 150)) return;
     pattern |= (1 << i);
   }
 }
@@ -78,7 +76,7 @@ void waterdrop() {
   uint8_t mask = pattern;
 
   for (int i=0; i<4; i++) {
-    if (!draw_pattern(pattern, 200)) return;
+    if (!draw_pattern(pattern, 120)) return;
     pattern |= ((pattern << 1) | (pattern >> 1));
     pattern &= (~mask);
     mask |= pattern;
@@ -93,10 +91,10 @@ void heartbeat() {
     0b11111111,
   };
   for (int i=0; i<4; i++) {
-    if (!draw_pattern(frames[i], 250)) return;
+    if (!draw_pattern(frames[i], 80)) return;
   }
   for (int i=2; i>=0; i--) {
-    if (!draw_pattern(frames[i], 250)) return;
+    if (!draw_pattern(frames[i], 80)) return;
   }
 }
 
@@ -106,6 +104,6 @@ void hello_world() {
 
   for (size_t i=0; i<msg_len; i++) {
     if (!sr_write(msg[i])) return;
-    _delay_ms(500);
+    _delay_ms(400);
   }
 }

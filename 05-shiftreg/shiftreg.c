@@ -10,7 +10,7 @@
 #define SER PD0
 #define R_CLK PD1
 #define SR_CLK PD2
-#define ANIM_NUM 8
+#define ANIM_NUM 9
 
 bool sr_write(uint8_t data);
 void shift_bit(bool bit);
@@ -52,15 +52,18 @@ int main(void) {
         left_sign(3);
         break;
       case 4:
-        loading_bar();
+        stack_to_end();
         break;
       case 5:
-        random_spark();
+        loading_bar();
         break;
       case 6:
-        waterdrop();
+        random_spark();
         break;
       case 7:
+        waterdrop();
+        break;
+      case 8:
         heartbeat();
         break;
       default:
