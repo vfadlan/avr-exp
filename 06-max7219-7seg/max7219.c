@@ -19,8 +19,7 @@ void SPI_transmit(uint8_t);
 void send_instruction(uint16_t);
 void display_test(void);
 void display_init(uint8_t, uint8_t, uint8_t);
-void display(uint8_t, uint8_t);
-void dot(uint8_t);
+void display_codeB(uint8_t, uint8_t);
 void display_str(char[]);
 
 int main(void) {
@@ -28,7 +27,10 @@ int main(void) {
   display_init(0xFF, 0x07, 4);
 
   while (1) {
-    display_str("HELP1234");
+    display_str(" -HELP- ");
+    _delay_ms(500);
+    display_str("        ");
+    _delay_ms(500);
   }
 }
 
@@ -65,12 +67,8 @@ void display_init(uint8_t decode_mode, uint8_t scan_limit, uint8_t intensity) {
   send_instruction((MAX_INTENSITY<< 8) | (intensity & 0xF));
 }
 
-void display(uint8_t digit, uint8_t code) {
+void display_codeB(uint8_t digit, uint8_t code) {
   send_instruction(((digit & 0xF) << 8) | code);
-}
-
-void dot(uint8_t digit) {
-  send_instruction(((digit & 0xF) << 8) | (1 << 7));
 }
 
 void display_str(char msg[]) {
@@ -102,6 +100,6 @@ void display_str(char msg[]) {
         c = msg[i] - '0';
         break;
     }
-    display(8-i, c);
+    display_codeB(8-i, c);
   }
 }
