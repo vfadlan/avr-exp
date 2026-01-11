@@ -129,8 +129,8 @@ int main() {
   printf("Shift Register Emulator Starting...\n");
     
   while(1) {
-    heartbeat();
-    usleep(50 * 1000);
+    left_sign(3);
+    usleep(30 * 1000);
   }
 
   return 0;

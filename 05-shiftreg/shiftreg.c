@@ -16,7 +16,6 @@ bool sr_write(uint8_t data);
 void shift_bit(bool bit);
 void tick(void);
 bool latch(void);
-void clear(void);
 
 volatile bool restart_requested = false;
 volatile int mode = 0;
@@ -95,36 +94,29 @@ void tick(void) {
 }
 
 bool latch(void) {
+  PORTD |= (1 << R_CLK);
+  _delay_ms(50);
+  PORTD &= (~(1 << R_CLK));
+
   if (restart_requested) {
     restart_requested = false;
     return false;
   }
-
-  PORTD |= (1 << R_CLK);
-  _delay_ms(50);
-  PORTD &= (~(1 << R_CLK));
   return true;
-}
-
-void clear(void) {
-  sr_write(0x00);
 }
 
 ISR (PCINT2_vect) {
   _delay_ms(25);
+  restart_requested = true;
+
   if ((~(PIND >> PD5)) & 1) {
-    restart_requested = true;
     if (mode) {
       mode--;
     } else {
       mode = ANIM_NUM-1;
     }
 
-  } else if ((~(PIND >> PD6)) & 1) {
-    restart_requested = true;
-
   } else if ((~(PIND >> PD7)) & 1) {
-    restart_requested = true;
     if (mode==(ANIM_NUM-1)) {
       mode = 0;
     } else {

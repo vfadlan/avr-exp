@@ -1,0 +1,10 @@
+[18:50:58 2026-01-11] FETCHING Version 2.42.7
+[18:50:58 2026-01-11] CREATING /home/fadlana/.spicetify
+[18:50:58 2026-01-11] DOWNLOADING https://github.com/spicetify/cli/releases/download/v2.42.7/spicetify-2.42.7-linux-amd64.tar.gz
+[18:51:25 2026-01-11] EXTRACTING /home/fadlana/.spicetify/spicetify.tar.gz
+[18:51:25 2026-01-11] SETTING EXECUTABLE PERMISSIONS TO /home/fadlana/.spicetify/spicetify
+[18:51:25 2026-01-11] REMOVING /home/fadlana/.spicetify/spicetify.tar.gz
+[18:51:25 2026-01-11] APPENDING /home/fadlana/.spicetify to PATH in /home/fadlana/.bashrc
+[18:51:25 2026-01-11] APPENDING /home/fadlana/.spicetify to PATH in /home/fadlana/.bash_profile
+[18:51:25 2026-01-11] spicetify v2.42.7 was installed successfully to /home/fadlana/.spicetify
+[18:51:25 2026-01-11] Run 'spicetify --help' to get started
