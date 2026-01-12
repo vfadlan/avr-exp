@@ -6,4 +6,4 @@ void SPI_transmit(uint8_t data);
 void send_instruction(uint16_t instruction, uint8_t load_pin, uint8_t id);
 void display_init(uint8_t decode_mode, uint8_t scan_limit, uint8_t brightness, uint8_t load_pin, uint8_t id);
 void display_codeB(uint8_t digit, uint8_t code, uint8_t load_pin, uint8_t id);
-void display(char c, uint8_t load_pin, uint8_t id);
+void display_char(int c, uint8_t load_pin, uint8_t id);

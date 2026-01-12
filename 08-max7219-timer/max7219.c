@@ -1,5 +1,4 @@
 #include <avr/io.h>
-#include <util/delay.h>
 #include <stdint.h>
 #include <ctype.h>
 #include <max7219.h>
@@ -10,7 +9,6 @@
 #define MAX_SCAN 0xB
 #define MAX_INTENSITY 0xA
 #define MAX_MODE 0x9
-
 
 const uint8_t EMOJI_NUM = 6;
 const uint64_t IMAGES[] = {
@@ -86,11 +84,12 @@ const uint64_t IMAGES[] = {
   0x1818001818181818,
   0x0800080810202418,
 };
-const int IMAGES_LEN = sizeof(IMAGES)/8;
+const uint8_t IMAGES_LEN = sizeof(IMAGES)/8;
 
 void SPI_init(int sck, int mosi, int load) {
   DDRB |= (1 << sck) | (1 << mosi) | (1 << load);
-  SPCR = (1 << SPE) | (1 << MSTR) | (1 << SPR0);
+  SPCR = (1 << SPE) | (1 << MSTR);
+  SPSR |= 1; // prescale 2
   PORTB |= (1 << load);
 }
 
@@ -103,12 +102,12 @@ void send_instruction(uint16_t instruction, uint8_t load_pin, uint8_t id) {
   SPI_transmit(instruction >> 8); // address
   SPI_transmit(instruction & 0xFF); // data
 
-  // for (int i=0; i<id; i++) {
-  //   SPI_transmit(0x00);
-  // }
+  for (int i=0; i<id; i++) {
+    SPI_transmit(0x00);
+    SPI_transmit(0x00);
+  }
 
   PORTB &= (~(1 << load_pin));
-  _delay_us(50);
   PORTB |= (1 << load_pin);
 }
 
@@ -123,19 +122,11 @@ void display_codeB(uint8_t digit, uint8_t code, uint8_t load_pin, uint8_t id) {
   send_instruction((((digit & 0xF) << 8) | code), load_pin, id);
 }
 
-void display(char c, uint8_t load_pin, uint8_t id) {
+void display_char(int c, uint8_t load_pin, uint8_t id) {
   uint64_t image;
   uint8_t d;
 
-  if (isdigit(c)) {
-    image = IMAGES[c - '0' + EMOJI_NUM];
-  } else if (isupper(c)) {
-    image = IMAGES[c - 'A' + 10 + EMOJI_NUM];
-  } else if (islower(c)) {
-    image = IMAGES[c - 'a' + 36 + EMOJI_NUM];
-  } else {
-    image = IMAGES[c];
-  }
+  image = IMAGES[c];
 
   for (int j=0; j<8; j++) {
     d = ((image >> (8 * j)) & 0xFF );
