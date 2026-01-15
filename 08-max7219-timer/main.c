@@ -6,15 +6,12 @@
 #include <stdbool.h>
 
 #define F_CPU 16000000UL
-
+#define DEBOUNCE_DELAY 3
 #define SCK PB5
 #define MOSI PB3
 #define LOAD PB2
 
-uint8_t cs = 0;
-uint8_t s = 0;
-uint8_t m = 0;
-uint8_t h = 0;
+volatile uint32_t centiseconds = 0;
 
 volatile bool count = true;
 volatile bool update_display = true;
@@ -24,10 +21,17 @@ extern uint8_t EMOJI_NUM;
 extern uint64_t IMAGES[];
 extern uint8_t IMAGES_LEN;
 
+volatile uint32_t pcint2_last_debounce = 0;
+volatile bool pcint2_delayed = false;
+volatile uint32_t int0_last_debounce = 0;
+volatile bool int0_delayed = false;
+
 int main() {
-  TCCR1B = (1 << 3) | 0b010; // ctc mode prescale 8
-  OCR1A = 19999;
-  TIMSK1 = (1 << OCIE1A);
+  uint8_t cs, h, m, s;
+  uint32_t remaining_seconds, now;
+  TCCR1B = (1 << 3) | 0b010; // ctc mode prescale 8, 2MHz
+  OCR1A = 19999; // 10ms each match
+  TIMSK1 = (1 << OCIE1A); // Timer Interrupt 1 Mask
   PORTD = (1 << PD4) | (1 << PD6) | (1 << PD7);
   EICRA = (1 << ISC00);
   EIMSK = 1;
@@ -42,6 +46,16 @@ int main() {
   sei();
   while (1) {
     if (update_display) {
+      if (centiseconds >= 8640000) {
+        centiseconds = 0;
+      }
+      
+      cs = centiseconds % 100;
+      remaining_seconds = centiseconds/100;
+      h = remaining_seconds / 3600;
+      m = remaining_seconds / 60 % 60;
+      s = remaining_seconds % 60; // v
+
       display_codeB(1, ((cs % 10) | (1 << 7)), LOAD, 0);
       display_codeB(2, (cs / 10), LOAD, 0);
 
@@ -58,62 +72,61 @@ int main() {
 
       update_display = false;
     }
-  }
-}
 
-ISR (INT0_vect) {
-  if ((!(PIND >> PD4)) & 1) {
-    count = false;
-  } else if (((PIND >> PD4) & 1)) {
-    count = true;
-  }
-}
-
-ISR (PCINT2_vect) {
-  if ((!(PIND >> PD7)) & 1) {
-    if (c) {
-      c--;
-    } else {
-      c = IMAGES_LEN-1;
+    now = centiseconds;
+    if (int0_delayed) {
+      int0_delayed = false;
+      if ((!(PIND >> PD4)) & 1) {
+        count = false;
+      } else if ((PIND >> PD4) & 1) {
+        count = true;
+      }
     }
-
-  } else if ((!(PIND >> PD6)) & 1) {
-    if (c==(IMAGES_LEN-1)) {
-      c = 0;
-    } else {
-      c++;
-    }
-  }
-}
-
-ISR (TIMER1_COMPA_vect) {
-  if (cs < 99) {
-    cs++;
-  } else {
-    cs = 0;
-    if (s < 59) {
-      s++;
-    } else {
-      s = 0;
-      if (m < 59) {
-        m++;
-      } else {
-        m = 0;
-        if (h < 23) {
-          h++;
+    if (pcint2_delayed) {
+      pcint2_delayed = false;
+      if ((!(PIND >> PD7)) & 1) {
+        if (c) {
+          c--;
         } else {
-          h = 0;
+          c = IMAGES_LEN-1;
+        }
+
+      } else if ((!(PIND >> PD6)) & 1) {
+        if (c==(IMAGES_LEN-1)) {
+          c = 0;
+        } else {
+          c++;
         }
       }
     }
   }
+}
 
-  update_display = true;
+ISR (INT0_vect) {
+  uint32_t now = centiseconds;
+  if ((now - int0_last_debounce) >= DEBOUNCE_DELAY) {
+    int0_last_debounce = now;
+    int0_delayed = true;
+  }
+}
+
+ISR (PCINT2_vect) {
+  uint32_t now = centiseconds;
+  if ((now - pcint2_last_debounce) >= DEBOUNCE_DELAY) {
+    pcint2_last_debounce = now;
+    pcint2_delayed = true;
+  }
+}
+
+ISR (TIMER1_COMPA_vect) {
+  if (count) {
+    centiseconds++;
+    update_display = true;
+  }
 }
 
 /*
 todo:
-off-load timer isr: only increment cs, calculate hms on main loop
 off-load int isr: only set event flag and debounce
 off-load pcint isr: only set event flag and debounce
 */
