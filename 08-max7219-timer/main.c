@@ -17,29 +17,28 @@ volatile bool count = true;
 volatile bool update_display = true;
 volatile int c = 0;
 
-extern uint8_t EMOJI_NUM;
 extern uint64_t IMAGES[];
 extern uint8_t IMAGES_LEN;
 
-struct button_t {
+typedef struct {
   uint8_t *inputreg;
   uint8_t pin_no;
   bool last_state;
   uint8_t delay;
   bool event;
-};
+} button_t;
 
-volatile struct button_t hold; // PD2
-volatile struct button_t next; // PD6
-volatile struct button_t prev; // PD7
+volatile button_t hold; // PD2
+volatile button_t next; // PD6
+volatile button_t prev; // PD7
 
-volatile struct button_t *buttons[BUTTON_COUNT] = {
+volatile button_t *buttons[BUTTON_COUNT] = {
   &hold,
   &next,
   &prev
 };
 
-struct button_t init_button(uint8_t *inputreg, char pin_no);
+button_t init_button(uint8_t *inputreg, char pin_no);
 
 int main() {
   uint8_t cs, h, m, s;
@@ -143,8 +142,8 @@ ISR (TIMER1_COMPA_vect) {
   }
 }
 
-struct button_t init_button(uint8_t *inputreg, char pin_no) {
-  struct button_t temp;
+button_t init_button(uint8_t *inputreg, char pin_no) {
+  button_t temp;
   temp.inputreg = inputreg;
   temp.pin_no = pin_no;
   temp.last_state = ((*inputreg) >> pin_no) & 1;
