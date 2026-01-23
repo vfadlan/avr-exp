@@ -86,7 +86,7 @@ const uint64_t IMAGES[] = {
 };
 const uint8_t IMAGES_LEN = sizeof(IMAGES)/8;
 
-uint8_t device_num = 0;
+volatile uint8_t device_num = 0;
 
 void SPI_init(int sck, int mosi, int load) {
   PORTB |= (1 << load);
