@@ -7,7 +7,7 @@ SRCS = main.c
 
 CC = avr-gcc
 OBJCOPY = avr-objcopy
-CFLAGS = -Wall -Os -mmcu=$(MCU) -DF_CPU=$(F_CPU) -I.
+CFLAGS = -Wall -Os -mmcu=$(MCU) -DF_CPU=$(F_CPU) -I. -Wl,-u,vfprintf -lprintf_flt -lm
 
 all: bin/$(TARGET).hex
 

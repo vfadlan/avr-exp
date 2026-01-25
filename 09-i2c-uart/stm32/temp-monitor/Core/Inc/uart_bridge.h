@@ -8,6 +8,6 @@
 extern volatile char rx_buf[RX_BUF_SIZE];
 extern volatile uint8_t rx_idx;
 
-extern float aht_temp, atmega_temp, aht_hum;
+extern float aht_temp, aht_hum;
 
 #endif

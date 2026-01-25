@@ -147,24 +147,27 @@ void SysTick_Handler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-  if (USART1->ISR & USART_ISR_NE)
+  if (USART1->ISR & USART_ISR_RXNE_RXFNE)
   {
     char c = USART1->RDR;
 
-    while (!(USART2->ISR & USART_ISR_TXFE));
+    while (!(USART2->ISR & USART_ISR_TXE_TXFNF));
     USART2->TDR = c;
 
     if (c == '\n')
     {
-        rx_buf[rx_idx] = '\0';
-        rx_idx = 0;
+      rx_buf[rx_idx] = '\0';
+      rx_idx = 0;
 
-        sscanf((char*)rx_buf, "%f\t%f\t%f", &aht_temp, &atmega_temp, &aht_hum);
+      sscanf((char*)rx_buf, "%f\t%f", &aht_temp, &aht_hum);
+      HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
     }
     else if (rx_idx < RX_BUF_SIZE - 1)
     {
-        rx_buf[rx_idx++] = c;
+      rx_buf[rx_idx++] = c;
     }
+
+    return;
   }
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);

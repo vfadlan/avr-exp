@@ -51,7 +51,7 @@ UART_HandleTypeDef huart2;
 volatile char rx_buf[RX_BUF_SIZE];
 volatile uint8_t rx_idx;
 
-float aht_temp, atmega_temp, aht_hum;
+float aht_temp, aht_hum;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,6 +62,8 @@ static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
+void uart_transmit(unsigned char c);
+void uart_print(char *c);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -233,9 +235,7 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE END USART1_Init 0 */
 
   /* USER CODE BEGIN USART1_Init 1 */
-  USART1->CR1 |= USART_CR1_RE;
-  USART1->CR1 |= USART_CR1_RXFFIE;
-  USART1->CR1 |= USART_CR1_UE;
+
   /* USER CODE END USART1_Init 1 */
   huart1.Instance = USART1;
   huart1.Init.BaudRate = 250000;
@@ -265,7 +265,11 @@ static void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-
+  USART1->CR1 |= USART_CR1_RE;
+  USART1->CR1 |= USART_CR1_RXNEIE_RXFNEIE;
+  USART1->CR1 |= USART_CR1_UE;
+  HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE END USART1_Init 2 */
 
 }
@@ -286,7 +290,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 250000;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -357,6 +361,20 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void uart_transmit(unsigned char c)
+{
+  while (!(USART2->ISR & USART_ISR_TXE_TXFNF))
+    ;
+  USART2->TDR = c;
+}
+
+void uart_print(char *c) {
+  while (*c) {
+    uart_transmit(*c);
+    c++;
+  }
+}
 
 /* USER CODE END 4 */
 
